@@ -19,7 +19,7 @@ router.post("/", verifyTokenAndAdmin, upload.single("image"), async (req, res) =
             price: req.body.price,
             amount: req.body.amount,
         })
-
+        res.json(newProduct)
         newProduct.save().then((data) => {res.json(data).status(201)}).catch((err) => {res.json(err).status(500)})
     } catch (error) {
         res.json(error).status(500)
@@ -67,7 +67,17 @@ router.get("/", async (req, res) => {
 
 //Get single product
 router.get("/find/:id", async (req, res) => {
-    await ProductModel.findById(req.params.id).then((data) => {res.json(data).status(200)}).catch((err) => {res.json(err).status(404)})
+    const product = await ProductModel.findById(req.params.id)
+    if (product != null) {
+        const related = await ProductModel.find({"category": product.category}).limit(10)
+        res.json(
+            {
+                "product": product,
+                "related_products": related
+            }
+        ).status(200)
+    }
+    res.json("Can not found product")
 })
 
 // Delete product

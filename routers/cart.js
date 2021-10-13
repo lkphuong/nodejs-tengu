@@ -1,7 +1,11 @@
 const router = require("express").Router();
 const CartModel = require("../models/cart");
 const CustomerModel = require("../models/customer");
-const {  verifyToken, verifyTokenAndAuthorization, verifyTokenAndAdmin} = require('../utils/verifyToken')
+const {
+  verifyToken,
+  verifyTokenAndAuthorization,
+  verifyTokenAndAdmin,
+} = require("../utils/verifyToken");
 
 // create cart
 router.post("/", verifyToken, async (req, res) => {
@@ -17,37 +21,100 @@ router.post("/", verifyToken, async (req, res) => {
     });
 });
 
-// update cart
-router.put("/:customerId", verifyToken, async (req, res) => {
-  try {
-    const updateCart = await CartModel.findByIdAndUpdate(
-      req.params.customerId,
-      {
-        $set: req.body,
-      },
+/*
+data = {
+  "productId": id of product,
+  "quantity": number of a product in cart ,
+  "key": -1 || 0 || 1
+}
+key == -1 => reduce number of a product in cart
+key == 0 => delete product 
+key == 1 => increase number of a product in cart
+*/
+
+// update cart (id of customer NOT id cart)
+router.put("/:id", verifyToken, async (req, res) => {
+  const check = await CartModel.findOne({"products.productId": req.body.productId,}).select("products");
+  const getProduct = {
+    "productId": req.body.productId,
+    "quantity": req.body.quantity
+  }
+  if (check == null) {
+    console.log(1);
+    const addProduct = await CartModel.findOneAndUpdate(
+      {"customerId": req.params.id },
+      { $push: { products: getProduct } },
       { new: true }
     );
-    res.json(updateCart).status(200);
-  } catch (error) {
-    res.json(error).status(500);
+    res.json(addProduct).status(200);
+    return
+  }
+  
+  let flag = null, idx = 0, cart = check.products;
+  for (idx; idx < cart.length; idx++) {
+    if (cart[idx].quantity === 1 && cart[idx].productId.toString() === req.body.productId) {
+      flag = 1;
+      break;
+    }
+  }
+  //
+  // delete product 1 -> 0
+  if (flag == 1 && req.body.key == -1) {
+    const deleteProduct = await CartModel.findOneAndUpdate(
+      {"customerId": req.params.id },
+      { $pull: { products: getProduct } },
+      { new: true }
+    );
+    res.json(deleteProduct).status(200);
+    return
+  }
+  //delete product n -> 0
+  else if (req.body.key == 0) {
+    const newDeleteProduct = await CartModel.findOneAndUpdate(
+      {"customerId": req.params.id },
+      { $pull: { products: getProduct } },
+      { new: true }
+    );
+    res.json(newDeleteProduct).status(200);
+  }
+  // incthe number of a product
+  else if (req.body.key == 1) {
+    const incProduct = await CartModel.findOneAndUpdate(
+      { "products.productId": req.body.productId, customerId: req.params.id },
+      { $inc: { "products.$.quantity": 1 } },
+      { new: true }
+    );
+    res.json(incProduct);
+  }
+  // reduce number
+  else {
+    const updateCart = await CartModel.findOneAndUpdate(
+      { "products.productId": req.body.productId, customerId: req.params.id },
+      { $inc: { "products.$.quantity": -1 } },
+      { new: true }
+    );
+    res.json(updateCart);
   }
 });
 
 // get all carts
 router.get("/", verifyTokenAndAdmin, async (req, res) => {
   await CartModel.find()
-    .populate("products.productId").populate("customerId")
+    .populate("products.productId")
+    .populate("customerId")
     .then((data) => {
-      res.json(data).status(200)
+      res.json(data).status(200);
     })
     .catch((error) => {
-      res.json(error)
+      res.json(error);
     });
 });
 
-//get single a cart
-router.get("/find/:customerId", verifyTokenAndAuthorization, async (req, res) => {
-  await CartModel.findOne({"customerId": req.params.customerId})
+//get single a cart (id of customer NOT id cart)
+router.get("/find/:id", verifyTokenAndAuthorization, async (req, res) => {
+  await CartModel.findOne({ customerId: req.params.id })
+    .populate("products.productId")
+    .populate("customerId")
     .then((data) => {
       res.json(data).status(200);
     })
