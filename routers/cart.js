@@ -27,7 +27,7 @@ data = {
   "quantity": number of a product in cart ,
   "key": -1 || 0 || 1
 }
-key == -1 => reduce number of a product in cart
+key == -1 && quantity == 1 => reduce number of a product in cart
 key == 0 => delete product 
 key == 1 => increase number of a product in cart
 */
@@ -40,7 +40,6 @@ router.put("/:id", verifyToken, async (req, res) => {
     "quantity": req.body.quantity
   }
   if (check == null) {
-    console.log(1);
     const addProduct = await CartModel.findOneAndUpdate(
       {"customerId": req.params.id },
       { $push: { products: getProduct } },
@@ -49,17 +48,9 @@ router.put("/:id", verifyToken, async (req, res) => {
     res.json(addProduct).status(200);
     return
   }
-  
-  let flag = null, idx = 0, cart = check.products;
-  for (idx; idx < cart.length; idx++) {
-    if (cart[idx].quantity === 1 && cart[idx].productId.toString() === req.body.productId) {
-      flag = 1;
-      break;
-    }
-  }
-  //
+
   // delete product 1 -> 0
-  if (flag == 1 && req.body.key == -1) {
+  if (req.body.quantity == 1 && req.body.key == -1) {
     const deleteProduct = await CartModel.findOneAndUpdate(
       {"customerId": req.params.id },
       { $pull: { products: getProduct } },
@@ -68,6 +59,7 @@ router.put("/:id", verifyToken, async (req, res) => {
     res.json(deleteProduct).status(200);
     return
   }
+
   //delete product n -> 0
   else if (req.body.key == 0) {
     const newDeleteProduct = await CartModel.findOneAndUpdate(
@@ -77,6 +69,7 @@ router.put("/:id", verifyToken, async (req, res) => {
     );
     res.json(newDeleteProduct).status(200);
   }
+  
   // incthe number of a product
   else if (req.body.key == 1) {
     const incProduct = await CartModel.findOneAndUpdate(
