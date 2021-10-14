@@ -69,7 +69,7 @@ router.put("/:id", verifyToken, async (req, res) => {
     );
     res.json(newDeleteProduct).status(200);
   }
-  
+
   // incthe number of a product
   else if (req.body.key == 1) {
     const incProduct = await CartModel.findOneAndUpdate(

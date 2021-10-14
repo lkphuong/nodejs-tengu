@@ -3,7 +3,6 @@ const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 
 const CustomerModel = require("../models/customer")
-const CartModel = require("../models/cart")
 
 //register 
 router.post("/register", async (req, res) => {
@@ -16,7 +15,7 @@ router.post("/register", async (req, res) => {
 
     try {
         const createdCustomer = await newCustomer.save()
-        res.status(201).json(createdCart)
+        res.status(201).json(createdCustomer)
     }
     catch (error) {
         res.status(500).json(error)
