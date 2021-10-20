@@ -38,7 +38,7 @@ router.put("/:id", verifyTokenAndAuthorization, async (req, res) => {
 // Delete customer
 router.delete("/:id", verifyTokenAndAuthorization, async (req, res) => {
     try {
-        await CustomerModel.findByIdAndDelete(req.params.od);
+        await CustomerModel.findByIdAndDelete(req.params.id);
         res.json("Customer has been deleted").status(204)
     } catch (error) {
         res.json(err).status(500)

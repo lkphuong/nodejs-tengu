@@ -6,7 +6,7 @@ const ProductSchema = new mongoose.Schema(
         desc: {type: String},
         img: {type: String},
         cloudinary_id: {type: String},
-        category: {type: String},
+        category: {type: mongoose.Schema.Types.ObjectId, ref: "category"},
         size: {type: String},
         price: {type: Number, required: true},
         amount: {type: Number, required: true}
