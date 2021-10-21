@@ -46,6 +46,6 @@ app.use("/api/order", orderRouter)
 app.use("/api/category", categoryRouter)
 
 
-app.listen(port, () => {
+app.listen(process.env.PORT || port , () => {
     console.log('Server started successfully')
 })
