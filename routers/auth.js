@@ -24,7 +24,8 @@ router.post("/register", async (req, res) => {
         })
         const createdCart = await newCart.save()
         res.status(201).json({
-            "customer": createdCustomer,
+            "status_code": 200,
+            "message": "Sign Up Success",
         })
         //res.status(201).json(createdCustomer)
     }
