@@ -17,16 +17,34 @@ router.post("/register", async (req, res) => {
     });
 
     try {
+        
         const createdCustomer = await newCustomer.save()
         let customerId = createdCustomer._id.toString()
         const newCart = CartModel({
             customerId: customerId
         })
         const createdCart = await newCart.save()
-        res.status(201).json({
-            "status_code": 200,
-            "message": "Sign Up Success",
-        })
+
+
+        const accessToken = jwt.sign(
+            {
+                id: newCustomer._id,
+                isAdmin: false,
+            },
+            process.env.JWT_KEY,
+            { expiresIn: "3d" }
+        );
+        const { password, ...others } = newCustomer._doc;
+
+
+       // res.status(200).json({ ...others, accessToken });
+
+        res.status(200).json({"status_code": 200, "customer": {...others}, "token": accessToken})
+
+        // res.status(201).json({
+        //     "status_code": 200,
+        //     "message": "Sign Up Success",
+        // })
         //res.status(201).json(createdCustomer)
     }
     catch (error) {
