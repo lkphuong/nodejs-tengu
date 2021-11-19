@@ -7,6 +7,12 @@ const VerifyCodeModel = require("../models/verifycode")
 const CustomerModel = require("../models/customer")
 const CartModel = require("../models/cart")
 
+const {
+    verifyToken,
+    verifyTokenAndAuthorization,
+    verifyTokenAndAdmin,
+  } = require("../utils/verifyToken");
+
 //register 
 router.post("/register", async (req, res) => {
     const newCustomer = new CustomerModel({
@@ -84,6 +90,12 @@ router.post("/login", async (req, res) => {
         res.status(500).json(err);
     }
 });
+
+// check token time-expired
+router.post("/time-expired",  verifyToken, async (req, res) => {
+    res.json({"status_code": 200})
+})
+
 
 
 // forgot password ->> sent verify code
