@@ -39,8 +39,7 @@ router.get("/:id", async (req, res) => {
 
 router.delete("/:id", verifyTokenAndAdmin, async (req, res) => {
     try {
-        await CategoryModel.findByIdAndDelete(req.params.id)
-        res.json("Category has been deleted").status(204)
+        await CategoryModel.findByIdAndDelete(req.params.id).then(()=>{res.json("Category has been deleted").status(204)})
     } catch (error) {
         res.json(error).status(404)
     }

@@ -119,8 +119,7 @@ router.get("/find/:id", verifyTokenAndAuthorization, async (req, res) => {
 //delete cart
 router.delete("/:id", verifyTokenAndAuthorization, async (req, res) => {
   try {
-    await CartModel.findByIdAndDelete(req.params.id);
-    res.json("Cart has been deleted").status(204);
+    await CartModel.findByIdAndDelete(req.params.id).then(()=>{res.json("Cart has been deleted").status(204)});
   } catch (error) {
     res.json(error).status(404);
   }

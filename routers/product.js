@@ -88,8 +88,7 @@ router.delete("/:id", verifyTokenAndAdmin, async (req, res) => {
         // Delete image of product from cloudinary
         await cloudinary.uploader.destroy(product.cloudinary_id)
         //Delete product from data
-        await ProductModel.findByIdAndDelete(req.params.id)
-        res.json("Product has been deleted").status(204)
+        await ProductModel.findByIdAndDelete(req.params.id).then(()=>{res.json("Product has been deleted").status(204)})
     } catch (error) {
         res.json(err).status(500)
     }
