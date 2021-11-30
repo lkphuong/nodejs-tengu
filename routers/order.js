@@ -1,6 +1,10 @@
 const router = require("express").Router();
 const OrderModel = require("../models/order");
-const {  verifyToken, verifyTokenAndAuthorization, verifyTokenAndAdmin} = require('../utils/verifyToken')
+const {
+  verifyToken,
+  verifyTokenAndAuthorization,
+  verifyTokenAndAdmin,
+} = require("../utils/verifyToken");
 
 // create new order
 router.post("/", verifyToken, async (req, res) => {
@@ -35,7 +39,7 @@ router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
 router.get("/", verifyTokenAndAdmin, async (req, res) => {
   await OrderModel.find()
     .populate({ path: "customerId", select: "firstName lastName phone email" })
-    .populate({path: "products.productId", select: "title size price"})
+    .populate({ path: "products.productId", select: "title size price" })
     .then((data) => {
       res.json(data).status(200);
     })
@@ -55,13 +59,15 @@ router.get("/find/:id", verifyToken, async (req, res) => {
     });
 });
 
-//delete order have a big bug 
+//delete order have a big bug
 router.delete("/:id", verifyToken, async (req, res) => {
-  try {
-    await OrderModel.findByIdAndDelete(req.params.id).then(()=>{ res.json("Order has been delete")});
-  } catch (error) {
-    res.json(error).status(404);
-  }
+  await OrderModel.findByIdAndDelete(req.params.id)
+    .then(() => {
+      res.json({ message: "Order has been deleted", status_code: 204 });
+    })
+    .catch(() => {
+      res.json({ message: "Order is not found", status_code: 404 });
+    });
 });
 
 // statistics all
