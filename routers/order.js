@@ -59,8 +59,8 @@ router.get("/find/:id", verifyToken, async (req, res) => {
     });
 });
 
-//delete order have a big bug
-router.delete("/:id", verifyToken, async (req, res) => {
+//delete order
+router.delete("/:id", async (req, res) => {
   await OrderModel.findByIdAndDelete(req.params.id)
     .then(() => {
       res.json({ message: "Order has been deleted", status_code: 204 });
