@@ -63,7 +63,7 @@ router.post("/login", async (req, res) => {
     try {
         const customer = await CustomerModel.findOne({ email: req.body.email });
 
-        !customer && res.status(401).json({"status_code": 404, "message": "Wrong credentials!"});
+        !customer && res.json({"status_code": 404, "message": "Wrong credentials!"});
 
         const hashedPassword = CryptoJS.AES.decrypt(
             customer.password,
@@ -73,7 +73,7 @@ router.post("/login", async (req, res) => {
         const OriginalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
 
         OriginalPassword !== req.body.password &&
-            res.status(401).json({"status_code": 404, "message": "Wrong credentials!"});
+            res.json({"status_code": 404, "message": "Wrong credentials!"});
 
         const accessToken = jwt.sign(
             {
@@ -87,7 +87,7 @@ router.post("/login", async (req, res) => {
 
         res.status(200).json({ ...others, accessToken });
     } catch (err) {
-        res.status(500).json({"status_code": 404, "message": err});
+        res.json({"status_code": 404, "message": err});
     }
 });
 
