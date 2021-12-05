@@ -44,6 +44,7 @@ router.put("/:id", verifyTokenAndAuthorization, async (req, res) => {
           lastName: req.body.lastName,
           phone: req.body.phone,
           address: req.body.address,
+          country: req.body.country
         },
       },
       { new: true }
