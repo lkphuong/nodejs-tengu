@@ -65,4 +65,41 @@ router.delete("/:id", verifyTokenAndAuthorization, async (req, res) => {
     });
 });
 
+// change password
+// input oldpass and 2 new pass
+router.put(
+  "/change-password/:id",
+  verifyTokenAndAuthorization,
+  async (req, res) => {
+    const person = await CustomerModel.findOne({ _id: req.params.id });
+
+    try {
+      const hashedPassword = CryptoJS.AES.decrypt(
+        person.password,
+        process.env.SECRET_KEY
+      );
+
+      const OriginalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
+
+      if(OriginalPassword === req.body.oldpassword) {
+        if(req.body.newpassword === req.body.newpassword2){
+          const updatePassword = await CustomerModel.findByIdAndUpdate(req.params.id,{
+            $set: {
+              password: CryptoJS.AES.encrypt(
+                req.body.newpassword,
+                process.env.SECRET_KEY
+              ).toString(),
+            }
+          },{new: true})
+          res.json({"status_code": 200, "message": "Update password successfully"})
+        }
+        res.json({"status_code": 400, "message": "Xác nhận mật khẩu không chính xác"})
+      }
+      else {res.json({"status_code": 400, "message": "Mật khẩu không chính xác"})}
+    } catch (error) {
+      res.json({"status_code": 404,"message": "Customer is not found"})
+    }
+  }
+);
+
 module.exports = router;
