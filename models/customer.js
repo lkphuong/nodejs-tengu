@@ -28,6 +28,8 @@ const CustomerSchema = new mongoose.Schema(
       type: String,
     },
     country: { type: String },
+    total_orders: {type: Number, default: 0},
+    total_spending: {type: Number, default: 0},
   },
   { timestamps: true }
 );

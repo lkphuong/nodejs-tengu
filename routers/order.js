@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const OrderModel = require("../models/order");
+const CustomerModel = require("../models/customer");
 const {
   verifyToken,
   verifyTokenAndAuthorization,
@@ -9,14 +10,26 @@ const {
 // create new order
 router.post("/", verifyToken, async (req, res) => {
   const newOrder = new OrderModel(req.body);
-  await newOrder
-    .save()
-    .then((data) => {
-      res.json(data).status(201);
-    })
-    .catch((error) => {
-      res.json(error).status(500);
+  const customer = await CustomerModel.findById(req.body.customerId)
+  try {
+    const total_orders = customer.total_orders + 1;
+    const total_spending = customer.total_spending + parseInt(req.body.payableAmount)
+    await CustomerModel.findOneAndUpdate(
+      { _id: req.body.customerId },
+      {
+        $set: {
+          total_orders: total_orders,
+          total_spending: total_spending,
+        },
+      },
+      { new: true }
+    ).then((data) => {res.json(data)});
+    await newOrder.save().then((data) => {
+      res.json({ "status_code": 201, "message": data });
     });
+  } catch (error) {
+    res.json({ "status_code": 500, "message": error });
+  }
 });
 
 // update order

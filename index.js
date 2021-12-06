@@ -37,6 +37,7 @@ const cartRouter = require('./routers/cart')
 const orderRouter = require('./routers/order')
 const categoryRouter = require("./routers/category")
 const authRouter = require("./routers/auth")
+const analyticsRouter = require("./routers/analytics")
 
 app.use("/api/auth", authRouter)
 app.use("/api/customer", customerRouter)
@@ -44,7 +45,7 @@ app.use("/api/product", productRouter)
 app.use("/api/cart", cartRouter)
 app.use("/api/order", orderRouter)
 app.use("/api/category", categoryRouter)
-
+app.use("/api/analytics", analyticsRouter)
 
 app.listen(process.env.PORT || port , () => {
     console.log('Server started successfully')
