@@ -36,10 +36,10 @@ router.put("/:id", verifyTokenAndAuthorization, async (req, res) => {
       req.params.id,
       {
         $set: {
-          password: CryptoJS.AES.encrypt(
-            req.body.password,
-            process.env.SECRET_KEY
-          ).toString(),
+          // password: CryptoJS.AES.encrypt(
+          //   req.body.password,
+          //   process.env.SECRET_KEY
+          // ).toString(),
           firstName: req.body.firstName,
           lastName: req.body.lastName,
           phone: req.body.phone,

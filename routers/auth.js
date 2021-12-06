@@ -45,7 +45,7 @@ router.post("/register", async (req, res) => {
 
        // res.status(200).json({ ...others, accessToken });
 
-        res.status(200).json({"status_code": 200, "customer": {...others}, "token": accessToken})
+        res.status(200).json({"status_code": 200, "customer": {...others}, "accessToken": accessToken})
 
         // res.status(201).json({
         //     "status_code": 200,
@@ -93,7 +93,8 @@ router.post("/login", async (req, res) => {
 
 // check token time-expired
 router.post("/time-expired",  verifyToken, async (req, res) => {
-    res.json({"status_code": 200})
+    const customer = await CustomerModel.findById(req.customer.id)
+    res.json({"status_code": 200, "data": customer})
 })
 
 
