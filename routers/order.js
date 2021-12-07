@@ -52,7 +52,7 @@ router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
 router.get("/", verifyTokenAndAdmin, async (req, res) => {
   await OrderModel.find()
     .populate({ path: "customerId", select: "firstName lastName phone email" })
-    .populate({ path: "products.productId", select: "title size price" })
+    .populate({ path: "products.productId", select: "title size price" }).sort({ createdAt: -1 })
     .then((data) => {
       res.json(data).status(200);
     })
