@@ -63,7 +63,7 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
 
 // get single a order
 router.get("/find/:id", verifyToken, async (req, res) => {
-  await OrderModel.findById(req.params.id).populate("products.productId")
+  await OrderModel.findById(req.params.id).populate("products.productId").sort({ createdAt: -1 })
     .then((data) => {
       res.json({status_code: 200, message: data})
     })
