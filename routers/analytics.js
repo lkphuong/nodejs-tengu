@@ -19,6 +19,18 @@ router.get("/top-customer", verifyTokenAndAdmin, async (req, res) => {
     });
 });
 
+//top customers
+router.get("/topcustomer", verifyTokenAndAdmin, async (req, res) => {
+  await CustomerModel.find()
+    .sort({ total_spending: -1 })
+    .then((data) => {
+      res.json({ status_code: 200, message: data });
+    })
+    .catch((err) => {
+      res.json({ status_code: 400, message: err });
+    });
+});
+
 //Latest Orders
 router.get("/latest-orders", async (req, res) => {
   await OrderModel.find()
