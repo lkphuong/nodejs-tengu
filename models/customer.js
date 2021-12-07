@@ -30,6 +30,8 @@ const CustomerSchema = new mongoose.Schema(
     country: { type: String },
     total_orders: {type: Number, default: 0},
     total_spending: {type: Number, default: 0},
+    district:{type: String},
+    ward: {type: String}
   },
   { timestamps: true }
 );

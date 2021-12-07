@@ -63,12 +63,12 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
 
 // get single a order
 router.get("/find/:id", verifyToken, async (req, res) => {
-  await OrderModel.findById(req.params.id)
+  await OrderModel.findById(req.params.id).populate("products.productId")
     .then((data) => {
-      res.json(data).status(200);
+      res.json({status_code: 200, message: data})
     })
     .catch((error) => {
-      res.json(error).status(404);
+      res.json({status_code: 404, message: "Order is not found"})
     });
 });
 
@@ -82,6 +82,15 @@ router.delete("/:id", async (req, res) => {
       res.json({ message: "Order is not found", status_code: 404 });
     });
 });
+
+//seed all my orders
+router.get("/myorders/:id", verifyTokenAndAuthorization, async(req, res) => {
+  await OrderModel.find({"customerId":req.params.id}).populate("products.productId").then((myorders) => {
+    res.json({status_code: 200, message: myorders})
+  }).catch((err) => res.json({status_code: 404, message: "My orders are not found"}))
+  res.json(myorders)
+})
+
 
 // statistics all
 router.get("/statistics", verifyTokenAndAdmin, async (req, res) => {
