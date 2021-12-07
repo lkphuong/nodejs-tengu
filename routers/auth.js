@@ -2,8 +2,6 @@ const router = require("express").Router();
 const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
-
-const VerifyCodeModel = require("../models/verifycode")
 const CustomerModel = require("../models/customer")
 const CartModel = require("../models/cart")
 
@@ -99,14 +97,18 @@ router.post("/time-expired",  verifyToken, async (req, res) => {
 
 
 
-// forgot password ->> sent verify code
-router.post("/forgotpassword", async (req, res) => {
+// forgot password ->> sent password to email
+router.post("/forgot-password", async (req, res) => {
     try {
         const customer = await CustomerModel.findOne({ "email": req.body.email })
-        if (customer == null || req.body.email == null) res.status(404).json("Account does not exist")
+        if (customer == null || req.body.email == null) res.json({status_code: 404, message: "Account is not found"})
 
-        // delete old verify code
-        await VerifyCodeModel.findOneAndDelete({"email": req.body.email}).then((data) => {console.log("deleted old verify code")}).catch((err)=> {console.log(err)})
+        const hashedPassword = CryptoJS.AES.decrypt(
+            customer.password,
+            process.env.SECRET_KEY
+        );
+
+        const OriginalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -116,20 +118,11 @@ router.post("/forgotpassword", async (req, res) => {
             }
         });
         
-        // // create verify code
-        const randomVerifyCode = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
-        
-        const verifyCode = VerifyCodeModel({
-            email: req.body.email,
-            verifyCode: randomVerifyCode.toString()
-        })
-        verifyCode.save().then((data) => {console.log(data)}).catch((err) => {res.send(err)})
-
         const mailOptions = {
             from: process.env.EMAIL,
             to: req.body.email,
-            subject: 'Verify code',
-            text: 'Your security code is: '+ randomVerifyCode
+            subject: 'PASSWORD',
+            text: 'Your password is: '+ OriginalPassword
         };
 
         transporter.sendMail(mailOptions, function (error, info) {
