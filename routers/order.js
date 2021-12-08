@@ -10,10 +10,11 @@ const {
 // create new order
 router.post("/", verifyToken, async (req, res) => {
   const newOrder = new OrderModel(req.body);
-  const customer = await CustomerModel.findById(req.body.customerId)
+  const customer = await CustomerModel.findById(req.body.customerId);
   try {
     const total_orders = customer.total_orders + 1;
-    const total_spending = customer.total_spending + parseInt(req.body.payableAmount)
+    const total_spending =
+      customer.total_spending + parseInt(req.body.payableAmount);
     await CustomerModel.findOneAndUpdate(
       { _id: req.body.customerId },
       {
@@ -23,12 +24,13 @@ router.post("/", verifyToken, async (req, res) => {
         },
       },
       { new: true }
-    ).then((data) => {res.json(data)});
-    await newOrder.save().then((data) => {
-      res.json({ "status_code": 201, "message": data });
+    ).then(() => {
+      newOrder.save().then((result) => {
+        res.json({ status_code: 201, message: result });
+      });
     });
   } catch (error) {
-    res.json({ "status_code": 500, "message": error });
+    res.json({ status_code: 500, message: error });
   }
 });
 
@@ -52,7 +54,8 @@ router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
 router.get("/", verifyTokenAndAdmin, async (req, res) => {
   await OrderModel.find()
     .populate({ path: "customerId", select: "firstName lastName phone email" })
-    .populate({ path: "products.productId", select: "title size price" }).sort({ createdAt: -1 })
+    .populate({ path: "products.productId", select: "title size price" })
+    .sort({ createdAt: -1 })
     .then((data) => {
       res.json(data).status(200);
     })
@@ -63,12 +66,14 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
 
 // get single a order
 router.get("/find/:id", verifyToken, async (req, res) => {
-  await OrderModel.findById(req.params.id).populate("products.productId").sort({ createdAt: -1 })
+  await OrderModel.findById(req.params.id)
+    .populate("products.productId")
+    .sort({ createdAt: -1 })
     .then((data) => {
-      res.json({status_code: 200, message: data})
+      res.json({ status_code: 200, message: data });
     })
     .catch((error) => {
-      res.json({status_code: 404, message: "Order is not found"})
+      res.json({ status_code: 404, message: "Order is not found" });
     });
 });
 
@@ -84,13 +89,17 @@ router.delete("/:id", async (req, res) => {
 });
 
 //seed all my orders
-router.get("/myorders/:id", verifyTokenAndAuthorization, async(req, res) => {
-  await OrderModel.find({"customerId":req.params.id}).populate("products.productId").then((myorders) => {
-    res.json({status_code: 200, message: myorders})
-  }).catch((err) => res.json({status_code: 404, message: "My orders are not found"}))
-  res.json(myorders)
-})
-
+router.get("/myorders/:id", verifyTokenAndAuthorization, async (req, res) => {
+  await OrderModel.find({ customerId: req.params.id })
+    .populate("products.productId")
+    .then((myorders) => {
+      res.json({ status_code: 200, message: myorders });
+    })
+    .catch((err) =>
+      res.json({ status_code: 404, message: "My orders are not found" })
+    );
+  res.json(myorders);
+});
 
 // statistics all
 router.get("/statistics", verifyTokenAndAdmin, async (req, res) => {
