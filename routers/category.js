@@ -47,7 +47,7 @@ router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/all", async (req, res) => {
   await CategoryModel.find()
     .then((data) => {
       res.json(data).status(200);
