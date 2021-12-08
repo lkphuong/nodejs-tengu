@@ -6,20 +6,19 @@ const {  verifyToken, verifyTokenAndAuthorization, verifyTokenAndAdmin} = requir
 
 
 //create product
-router.post("/", verifyTokenAndAdmin, upload.single("image"), async (req, res) => {
-    const result = await cloudinary.uploader.upload(req.file.path);   
+router.post("/", verifyTokenAndAdmin, async (req, res) => {
     try {
-        const newProduct = new ProductModel({
-            title: req.body.title,
-            desc: req.body.desc,
-            img: result.secure_url,
-            cloudinary_id: result.public_id,
-            category: req.body.category,
-            size: req.body.size,
-            price: req.body.price,
-            amount: req.body.amount,
-        })
-        res.json(newProduct)
+        const newProduct = new ProductModel(
+            // title: req.body.title,
+            // desc: req.body.desc,
+            // img: result.secure_url,
+            // cloudinary_id: result.public_id,
+            // category: req.body.category,
+            // size: req.body.size,
+            // price: req.body.price,
+            // amount: req.body.amount,
+            req.body
+        )
         newProduct.save().then((data) => {res.json(data).status(201)}).catch((err) => {res.json(err).status(500)})
     } catch (error) {
         res.json(error).status(500)
@@ -29,27 +28,28 @@ router.post("/", verifyTokenAndAdmin, upload.single("image"), async (req, res) =
 // Update product
 router.put("/:id", verifyTokenAndAdmin, upload.single("image"), async (req, res) => {
     try {
-        let product = await ProductModel.findById(req.params.id);
+        // let product = await ProductModel.findById(req.params.id);
 
-        let result
-        if(req.file) {
-            // Delete image from cloudinary
-            await cloudinary.uploader.destroy(product.cloudinary_id);
-            result = await cloudinary.uploader.upload(req.file.path)
-        }
-        // Update new image and infomation of product
+        // let result
+        // if(req.file) {
+        //     // Delete image from cloudinary
+        //     await cloudinary.uploader.destroy(product.cloudinary_id);
+        //     result = await cloudinary.uploader.upload(req.file.path)
+        // }
+        // // Update new image and infomation of product
         const updateProduct = await ProductModel.findByIdAndUpdate(
             req.params.id,
             {
                 $set: {
                     title: req.body.title,
                     desc: req.body.desc,
-                    img: result?.secure_url || product.img,
-                    cloudinary_id: result?.public_id || product.cloudinary_id,
+                    //img: result?.secure_url || product.img,
+                    //cloudinary_id: result?.public_id || product.cloudinary_id,
                     category: req.body.category,
                     size: req.body.size,
                     price: req.body.price,
                     amount: req.body.amount,
+                    discount_rate: req.body.discount_rate
                 }
             },
             {new: true}
@@ -62,7 +62,7 @@ router.put("/:id", verifyTokenAndAdmin, upload.single("image"), async (req, res)
 
 // Get all products
 router.get("/", async (req, res) => {
-    await ProductModel.find().then((data) => {res.json(data).status(200)}).catch((err) => {res.json(err).status(404)})
+    await ProductModel.find().populate("category").then((data) => {res.json(data).status(200)}).catch((err) => {res.json(err).status(404)})
 })
 
 //Get single product

@@ -140,15 +140,5 @@ router.post("/forgot-password", async (req, res) => {
 })
 
 
-// confirm verify code
-router.get("/confirm-code", async (req, res) => {
-
-    const verifyCode = VerifyCodeModel.findOne({"email": req.body.email}).then((data) => {
-        if(data.verifyCode === req.body.code) {
-            res.json({"status_code": 200, "message": "True"})
-        }
-        else res.json({"status_code": 404, "message": "False"})
-    })
-})
 
 module.exports = router
