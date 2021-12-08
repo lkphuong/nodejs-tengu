@@ -33,7 +33,7 @@ router.get("/topcustomer", verifyTokenAndAdmin, async (req, res) => {
 
 //Latest Orders
 router.get("/latest-orders", async (req, res) => {
-  await OrderModel.find()
+  await OrderModel.find().populate({ path: "customerId", select: "firstName lastName phone email" })
     .sort({ createdAt: -1 }).limit(5)
     .then((data) => {
       res.json({ status_code: 200, message: data });
